@@ -288,7 +288,12 @@ def loadimagefolderdataset(name, path, split=['train', 'val']):
 
 
 def loadtorchvisiondataset(name, path):
+    
     datapath = os.path.join(path, name) #data path name is constructed by the input data path and the dataset name
+    
+    # UPDATE PRI
+    print("DATA PATH: " + datapath)
+    
     if not os.path.exists(datapath):
         os.makedirs(datapath)
 
@@ -334,6 +339,7 @@ def loadtorchvisiondataset(name, path):
     # classes = ['airplane', 'automobile', 'bird', 'cat', 'deer',
     #         'dog', 'frog', 'horse', 'ship', 'truck']
 
+    print("Loadtorchvisiondataset: " ,class_names)
     # obtain training indices that will be used for validation
     num_train = len(train_data)  # 50000
     indices = list(range(num_train))
@@ -379,4 +385,5 @@ def loadtorchvisiondataset(name, path):
     dataset_sizes = {'train': len(train_idx), 'val': len(
         valid_idx), 'test': len(test_data)}
 
+    print("Data loaders were created, exiting Loadtorchvisiondataset")
     return dataloaders, dataset_sizes, class_names, imageshape

@@ -87,10 +87,46 @@ def createTorchCNNmodel(name, numclasses, img_shape, pretrained=True):
         return create_resnetmodel1(numclasses, img_shape)
     elif name=='customresnet':
         return setupCustomResNet(numclasses, 'resnet50')
+    elif name =='customresnet_cifar10':
+        return setupCustomResNet50(numclasses)
     elif name in model_names:
         #return models.__dict__[name](pretrained=pretrained)
         #return create_torchvisionmodel(name, numclasses, pretrained)
         return create_torchvisionmodel(name, numclasses, freezeparameters=True, pretrained=pretrained)
+
+
+
+class CustomResNet50(nn.Module):
+    def __init__(self, num_classes=10):  # default to 10 classes for CIFAR-10
+        super(CustomResNet50, self).__init__()
+        
+        # Load a pre-trained ResNet-50 model
+        self.resnet = models.resnet50(pretrained=True)
+        
+        # first layer of the ResNet model to handle 32x32 images
+        self.resnet.conv1 = nn.Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        
+        # Replace the fully connected layer to match the number of classes in CIFAR-10
+        self.resnet.fc = nn.Linear(self.resnet.fc.in_features, num_classes)
+    
+    def forward(self, x):
+        return self.resnet(x)
+
+def setupCustomResNet50(num_classes=10):  # 10 classes for CIFAR-10
+    # Create a custom ResNet-50 model
+    model = CustomResNet50(num_classes=num_classes)
+    # Optionally print the model architecture
+    print(model)
+    return model
+
+
+
+
+
+
+
+
+
 
 def create_vggmodel1(numclasses, img_shape):
     # Load the pretrained model from pytorch

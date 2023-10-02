@@ -320,7 +320,10 @@ from TorchClassifier.myTorchModels.TorchCNNmodels import createTorchCNNmodel, cr
 import os
 def create_model(model_name, model_type, classmap, checkpoint=None, torchhub=None, device="cuda", img_shape=[2, 224, 224]):
     #Load class map
+    print("Inside create_model: ")
     classmap=loadjsontodict(classmap)
+    
+
     #Create model
     if model_type == "ImageNet":
         model_ft, classnames, numclasses, preprocess = createImageNetmodel(model_name, torchhub)
@@ -347,6 +350,7 @@ def create_model(model_name, model_type, classmap, checkpoint=None, torchhub=Non
             print(f"Output size in model: {size[0]}, numclasses: {numclasses}")
             model_ft.load_state_dict(model_state)
             print(f"Loading checkpoint: {checkpoint}")
+        print("No checkpoint found, returning...", classnames)
     return model_ft, classnames, numclasses, classmap
 
 def getclass_newnames(model_type, classmap, model_classnames, dataset_classnames):
@@ -357,6 +361,8 @@ def getclass_newnames(model_type, classmap, model_classnames, dataset_classnames
         else:
             class_newnames = dataset_classnames #1000 class
     else:
+        print("Inside getclass_newnames: ")
+        print(classmap)
         class_newnames=[]
         for name in dataset_classnames: #from the dataset
             newname=classmap[name]

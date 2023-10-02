@@ -181,4 +181,4 @@ def plot_confusion_matrix(labels, pred_labels, maxlen=200):
     #cm = ConfusionMatrixDisplay(cm, display_labels = range(10))
     cm = ConfusionMatrixDisplay(cm)
     cm.plot(values_format = 'd', cmap = 'Blues', ax = ax)
-    fig.savefig('./outputs/confusion_matrix.png')
+    fig.savefig('/home/016712345/torchhome/CIFAR10_customresnet_0910/confusion_matrix.png')
