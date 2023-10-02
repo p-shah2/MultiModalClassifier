@@ -31,9 +31,9 @@ except:
     # !pip install -q torchinfo
     # from torchinfo import summary
 
-os.environ['TORCH_HOME'] = '/data/cmpe249-fa23/torchhome/' #setting the environment variable
+os.environ['TORCH_HOME'] = '/home/016712345/torchhome/' #setting the environment variable
 
-CHECKPOINT_PATH="./outputs"
+CHECKPOINT_PATH="/home/016712345/torchhome/hub/checkpoints"
 CHECKPOINT_file=os.path.join(CHECKPOINT_PATH, 'checkpoint.pth.tar')
 
 
@@ -77,7 +77,7 @@ parser.add_argument('--img_height', type=int, default=224,
                     help='resize to img height, 224')
 parser.add_argument('--img_width', type=int, default=224,
                     help='resize to img width, 224')
-parser.add_argument('--save_path', type=str, default='./outputs/',
+parser.add_argument('--save_path', type=str, default='/home/016712345/torchhome/outputs/',
                     help='path to save the model')
 # network
 parser.add_argument('--model_name', default='resnet50',
@@ -86,7 +86,7 @@ parser.add_argument('--model_type', default='ImageNet', choices=['ImageNet', 'cu
                     help='the network')
 parser.add_argument('--torchhub', default='facebookresearch/deit:main',
                     help='the torch hub link')
-parser.add_argument('--resume', default="outputs/imagenet_blurred_resnet50_0328/model_best.pth.tar", type=str, metavar='PATH',
+parser.add_argument('--resume', default="/home/016712345/torchhome/outputs/default_0328/model_best.pth.tar", type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
 parser.add_argument('--arch', default='Pytorch', choices=['Tensorflow', 'Pytorch'],
                     help='Model Name, default: Pytorch.')
@@ -133,12 +133,13 @@ args = parser.parse_args()
 
 def save_checkpoint(state, is_best, path=CHECKPOINT_PATH):
     filename=os.path.join(path, 'checkpoint.pth.tar')
+    print("SAVING CHECKPOINT AT: " + filename)
     torch.save(state, filename)
     if is_best:
         shutil.copyfile(filename, os.path.join(path, 'model_best.pth.tar'))
 
 def train_model(model, dataloaders, dataset_sizes, criterion, optimizer, scheduler, start_epoch=0, num_epochs=25, 
-                tensorboard_writer=None, profile=None, checkpoint_path='./outputs/'):
+                tensorboard_writer=None, profile=None, checkpoint_path='/home/016712345/torchhome/hub/checkpoints/'):
     since = time.time()
 
     best_model_wts = copy.deepcopy(model.state_dict())
@@ -414,13 +415,13 @@ def main():
     criterion = criterion.to(device)
 
     # Print a summary using torchinfo (uncomment for actual output)
-    summary(model=model_ft, 
-            input_size=(args.batchsize, 3, args.img_height, args.img_width), # make sure this is "input_size", not "input_shape"
-            # col_names=["input_size"], # uncomment for smaller output
-            col_names=["input_size", "output_size", "num_params", "trainable"],
-            col_width=20,
-            row_settings=["var_names"]
-    ) 
+    # summary(model=model_ft, 
+    #         input_size=(args.batchsize, 3, args.img_height, args.img_width), # make sure this is "input_size", not "input_shape"
+    #         # col_names=["input_size"], # uncomment for smaller output
+    #         col_names=["input_size", "output_size", "num_params", "trainable"],
+    #         col_width=20,
+    #         row_settings=["var_names"]
+    # ) 
 
     # Observe that all parameters are being optimized, 
     optimizer_ft=gettorchoptim(args.optimizer, model_ft, lr=args.lr, momentum=args.momentum,
@@ -468,7 +469,7 @@ def main():
     # torch.save(model_ft.state_dict(), modelsavepath)
 
     test_model(model_ft, dataloaders, class_names, criterion, args.batchsize, key='val')
-    
+    plot_confusion_matrix(labels, probs)
     #visualize_model(model_ft, dataloaders, class_names, num_images=6)
     #visualize_result(model_ft, dataloaders, class_names, key='val')
     

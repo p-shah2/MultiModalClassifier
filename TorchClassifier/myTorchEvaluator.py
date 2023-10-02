@@ -33,7 +33,7 @@ model = None
 device = None
 # import logger
 
-os.environ['TORCH_HOME'] = '/data/cmpe249-fa23/torchhome/' #setting the environment variable
+os.environ['TORCH_HOME'] = '/home/016712345/torchhome/' #setting the environment variable
 
 #Tiny Imagenet evaluation
 #python myTorchEvaluator.py --data_name 'tiny-imagenet-200' --data_type 'trainonly' 
@@ -80,7 +80,7 @@ parser.add_argument('--model_type', default='ImageNet', choices=['ImageNet', 'cu
                     help='the network')
 parser.add_argument('--torchhub', default='facebookresearch/deit:main',
                     help='the torch hub link')
-parser.add_argument('--checkpoint', default='outputs/tiny-imagenet-200_resnet50_0328/checkpoint.pth.tar', type=str, metavar='PATH',
+parser.add_argument('--checkpoint', default='/home/016712345/torchhome/outputs/CIFAR10_customresnet_cifar10_0328/checkpoint.pth.tar', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
 # parser.add_argument('--arch', default='Pytorch', choices=['Tensorflow', 'Pytorch'],
 #                     help='Model Name, default: Pytorch.')
@@ -92,7 +92,9 @@ parser.add_argument('-j', '--workers', default=2, type=int, metavar='N',
                     help='number of data loading workers (default: 2)')
 parser.add_argument('--batchsize', type=int, default=32,
                     help='batch size')
-parser.add_argument('--classmap', default='TorchClassifier/Datasetutil/imagenet1000id2label.json', type=str, metavar='FILENAME',
+
+
+parser.add_argument('--classmap', default='/home/016712345/MultiModalClassifier/TorchClassifier/Datasetutil/imagenet_idmap.json', type=str, metavar='FILENAME',
                     help='path to class to idx mapping file (default: "")')
 # parser.add_argument('--epochs', type=int, default=15,
 #                     help='epochs')
@@ -146,11 +148,18 @@ def main():
     img_shape=[3, args.img_height, args.img_width] #[channels, height, width] in pytorch
 
     model_ft, model_classnames, numclasses, classmap = create_model(args.model_name, args.model_type, args.classmap, args.checkpoint, args.torchhub, device, img_shape)
+    print("Create Model Ran!")
+    print("Model Classnames: ")
+    print(model_classnames)
+    print("classmap: ")
+    print(classmap)
+
     model_ft.eval()
 
-    newname="Sports Cars"#classmap['n04285008']
-    image_path="/data/cmpe249-fa23/ImageClassData/tiny-imagenet-200/train/n04285008/images/n04285008_31.JPEG"#n04285008_497.JPEG"
-    inference_singleimage(image_path, model_ft, device, classnames=model_classnames, truelabel=newname, size=args.img_height, top_k=args.topk)
+    
+    #newname="Sports Cars"#classmap['n04285008']
+    #image_path="/data/cmpe249-fa23/ImageClassData/tiny-imagenet-200/train/n04285008/images/n04285008_31.JPEG"#n04285008_497.JPEG"
+    #inference_singleimage(image_path, model_ft, device, classnames=model_classnames, truelabel=newname, size=args.img_height, top_k=args.topk)
     
 
     #Load dataset
