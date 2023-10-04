@@ -89,33 +89,75 @@ def createTorchCNNmodel(name, numclasses, img_shape, pretrained=True):
         return setupCustomResNet(numclasses, 'resnet50')
     elif name =='customresnet_cifar10':
         return setupCustomResNet50(numclasses)
+    elif name == 'fusionmodel':
+        return setupFusionModel(numclasses)
     elif name in model_names:
         #return models.__dict__[name](pretrained=pretrained)
         #return create_torchvisionmodel(name, numclasses, pretrained)
         return create_torchvisionmodel(name, numclasses, freezeparameters=True, pretrained=pretrained)
 
 
+class customFusionModel(nn.Module):
+    def __init__(self, num_classes=10):  # default to 10 classes for CIFAR-10
+        super(customFusionModel, self).__init__()
+        
+        # Transfer learning: load pretrained ResNet50 model
+        self.resnet = models.resnet50(pretrained=True)
+       
+       # Exclude final fc layer
+        self.features_resnet = nn.Sequential(*list(self.resnet.children())[:-1])
+        
+        # Transfer learning: load pretrained EfficientNetB0 model
+        self.effnet = models.efficientnet_b0(pretrained=True)
+        
+        # Exclude final fc layer
+        self.features_effnet = nn.Sequential(*list(self.effnet.children())[:-1])
+        
+    
+        self.fusion_classifier = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(3328, 512), # 2048 from resnet50 and 1280 from efficientnet
+            nn.ReLU(),
+            nn.Dropout(0.5),
+            nn.Linear(512, num_classes)
+        )
+    
+    def forward(self, x):
+        
+        x_resnet = self.features_resnet(x)
+        x_effnet = self.features_effnet(x)
+        
+        # Flatten and concat
+        x_resnet = x_resnet.view(x_resnet.size(0), -1)
+        x_effnet = x_effnet.view(x_effnet.size(0), -1)
+        x_fusion = torch.cat((x_resnet, x_effnet), dim=1)
+        
+        x_out = self.fusion_classifier(x_fusion)
+        
+        return x_out
+
+def setupFusionModel(num_classes=10):  # CIFAR10 specific
+    model = customFusionModel(num_classes=num_classes)
+    print(model)
+    return model
+
+
 
 class CustomResNet50(nn.Module):
-    def __init__(self, num_classes=10):  # default to 10 classes for CIFAR-10
+    def __init__(self, num_classes): 
         super(CustomResNet50, self).__init__()
-        
-        # Load a pre-trained ResNet-50 model
+       
         self.resnet = models.resnet50(pretrained=True)
-        
-        # first layer of the ResNet model to handle 32x32 images
         self.resnet.conv1 = nn.Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
         
-        # Replace the fully connected layer to match the number of classes in CIFAR-10
+        # Replace final fc layer to 10 outputs
         self.resnet.fc = nn.Linear(self.resnet.fc.in_features, num_classes)
     
     def forward(self, x):
         return self.resnet(x)
 
-def setupCustomResNet50(num_classes=10):  # 10 classes for CIFAR-10
-    # Create a custom ResNet-50 model
+def setupCustomResNet50(num_classes):  
     model = CustomResNet50(num_classes=num_classes)
-    # Optionally print the model architecture
     print(model)
     return model
 
