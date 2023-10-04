@@ -88,13 +88,14 @@ def createTorchCNNmodel(name, numclasses, img_shape, pretrained=True):
     elif name=='customresnet':
         return setupCustomResNet(numclasses, 'resnet50') 
     elif name =='customresnet_cifar10':
-        return setupCustomResNet50(numclasses) # New updates
+        return setupCustomResNet50(numclasses)  # New updates
     elif name == 'fusionmodel':
         return setupFusionModel(numclasses)
     elif name in model_names:
         #return models.__dict__[name](pretrained=pretrained)
         #return create_torchvisionmodel(name, numclasses, pretrained)
         return create_torchvisionmodel(name, numclasses, freezeparameters=True, pretrained=pretrained)
+
 
 
 # New updates
@@ -142,7 +143,6 @@ def setupFusionModel(num_classes=10):  # CIFAR10 specific
     model = customFusionModel(num_classes=num_classes)
     print(model)
     return model
-
 
 
 # New updates
